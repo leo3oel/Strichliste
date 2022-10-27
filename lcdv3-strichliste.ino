@@ -8,22 +8,6 @@
 LiquidCrystal lcd(12, 11, 5, 4, 3, 9);
 
 /*Gedanken: 
- *  k - array mit posinlist und array mit strichen gemeinsam auf EEPROM speichern
- *  - beide arrays gemeinsam nach größe sortieren
- *    - sortierung muss leere arrayzellen nach hinten stellen
- *  - andere lösung für bildschirmtime out suchen (unabhängig von name machen)
- *    - zB timeout variable einführen:
- *      - um das timeout zu verlassen knopf betätigen
- *      - danach name auf 0 setzen
- *      - timeout variable zurück setzen
- *    - alternativ über sleepfunktion
- *    - zum schluss umsetzen
- *  - FRAGE: speichern von strings auf EEPROM möglich?
- *    - character einzeln speichern
- *    - strings werden auf max 12 character begrenzt
- *    - int benötigt 4 bytes char 1 byte
- *      -> pro person 4+12*1=16bytes
- *    - 1024 bytes speicher -> 64 personen max möglich
  *  - möglichkeit zum posinlist neu anlegen einführen
  *    - zB Wartungsmodus:
  *      - Output auf SD Karte
@@ -32,40 +16,42 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 9);
  *      - posinlist in die leeren Arrayzellen schreiben
  *      - posinlist und Striche von SD Karte einlesen
  *      - direkt auf EEPROM speichern
- * 
- *    
- * 
  */
 
 
 //Variablen und Konstanten
-const int switchPin = 6; // Schalter
-const int nschalter = 7;
-const int resetP = 8;
+const int switchPin = 6; // Striche hochzählen
+const int nschalter = 7; //Namen durchschalten
+const int resetP = 8; //Striche zurücksetzen
+unsigned long int inactivity=0; //sleeptimer
+short int disteeprom=16;//abstand einzelner Personen im EEPROM
 //const int wakeUpPin = 6;
 
+//Striche hochzählen
 int switchState = 0;
 int prevSwitchState = 0;
 
+//Namen hochzählen
 int nschalterstat = 0;
 int prevnschalterstat = 0;
 
-int posinlist = -1; //Zählt personen durch
+//Listenposition
+int posinlist = -1; //Zählt personen durch; -1 ist der bitte auswählen bildschirm
 int posinlistprev=0;
 short int disteeprom=16;//abstand einzelner Personen im EEPROM
 
+//Striche zurücksetzen
 int resetS=0;
 int resetSprev=0;
 
+//Arrays für Striche/Namen
 int striche[ARRAYSIZE] = {6,0,12,0,1,0,0};//Striche
 char stnamen[ARRAYSIZE][12] = {"Leonhard S", "Sophie M", "Rainer S", "Georg S", "Simon S"};//Array mit allen Namen, länge auf 12 begrenzt
-int usedpers=0;
-
-unsigned long int inactivity=0; //sleeptimer
+int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezählt
 
 
-void schreiben (int);
-void zeileloeschen (int a)
+void schreiben (int);//Schreibt Namen/Striche auf LCD
+void zeileloeschen (int a)//Löscht Display
 {
   for(int i=0; i<=16; i++)
   {
@@ -74,12 +60,13 @@ void zeileloeschen (int a)
   }
 }
 
-void sort();
-void writeEEPROM();
-void sendToSleep();
-void wakeUpAgain();
+void sort();//Sortieren der Arrays
+void writeEEPROM();//Schreiben der kompletten Arrays
+void sendToSleep();//Sleep Funktion
+void wakeUpAgain();//Wakeup from Sleep
 
-void setup() {
+void setup() //Setup
+{
 
   //!!!!!!!!!!!!!
   //Nur um neue Mitglieder anzulegen
@@ -121,8 +108,8 @@ void setup() {
 
 
 void loop() {
-  //sleep
-  if(inactivity>10000)
+  //sleep inactivity abfrage nach gefühl
+  if(inactivity>100000)
   {
     inactivity = 0;
     posinlist=-1;
@@ -142,7 +129,7 @@ void loop() {
     posinlist++;
   }
   
-  if(posinlist == -1)
+  if(posinlist == -1)//Start
   {
     lcd.setCursor(0,1);
     lcd.print("Bitte auswaehlen");
@@ -178,7 +165,7 @@ void loop() {
     lcd.print(striche[posinlist]);
     lcd.setCursor(4,1);
     lcd.print("EUR bezahlt?");
-    delay(5000);
+    delay(5000);//5 sec delay, danach erneute abfrage ob noch gedrückt
     if(digitalRead(resetP))
     {
       striche[posinlist]=0;
