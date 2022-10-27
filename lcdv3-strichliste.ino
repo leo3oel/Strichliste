@@ -7,7 +7,7 @@
 #define interruptPin 2
 LiquidCrystal lcd(12, 11, 5, 4, 3, 9);
 
-/*Gedanken: 
+/*ToDo: 
  *  - möglichkeit zum posinlist neu anlegen einführen
  *    - zB Wartungsmodus:
  *      - Output auf SD Karte
@@ -16,13 +16,20 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 9);
  *      - posinlist in die leeren Arrayzellen schreiben
  *      - posinlist und Striche von SD Karte einlesen
  *      - direkt auf EEPROM speichern
+ *    - vmtl eher: Eingabe per Serial
+ *      - Eingabe nur vom Namen
+ *      - Möglichkeit Personen aus Liste zu löschen
+ *  - 
  */
 
 
 //Variablen und Konstanten
 const int switchPin = 6; // Striche hochzählen
-const int nschalter = 7; //Namen durchschalten
+const int nschalter = 7; //Namen hochzählen
 const int resetP = 8; //Striche zurücksetzen
+const int switchBackPin = 10;//Striche runterzählen
+const int nschalterBackPin = 11;//Namen zurückschalten
+const int maintenancePin = 12; //Wartungsmodus
 unsigned long int inactivity=0; //sleeptimer
 short int disteeprom=16;//abstand einzelner Personen im EEPROM
 //const int wakeUpPin = 6;
@@ -44,6 +51,18 @@ short int disteeprom=16;//abstand einzelner Personen im EEPROM
 int resetS=0;
 int resetSprev=0;
 
+//Striche runterzählen
+int switchStateBack = 0;
+int prevswitchStateBack = 0;
+
+//Namen runterzählen
+int nschalterstatBack = 0;
+int prevnschalterstatBack =0;
+
+//Wartungsmodus
+int maintenanceState = 0;
+int prevmaintenanceState = 0;
+
 //Arrays für Striche/Namen
 int striche[ARRAYSIZE] = {6,0,12,0,1,0,0};//Striche
 char stnamen[ARRAYSIZE][12] = {"Leonhard S", "Sophie M", "Rainer S", "Georg S", "Simon S"};//Array mit allen Namen, länge auf 12 begrenzt
@@ -64,6 +83,8 @@ void sort();//Sortieren der Arrays
 void writeEEPROM();//Schreiben der kompletten Arrays
 void sendToSleep();//Sleep Funktion
 void wakeUpAgain();//Wakeup from Sleep
+void maintenance();//Wartungsmodus, input neuer listeneinträge per Serial
+
 
 void setup() //Setup
 {
@@ -97,6 +118,9 @@ void setup() //Setup
   pinMode(switchPin,INPUT);
   pinMode(nschalter,INPUT);
   pinMode(resetP,INPUT);
+  pinMode(switchBackPin, INPUT);
+  pinMode(nschalterBackPin, INPUT);
+  pinMode(maintenancePin, INPUT);
   pinMode(interruptPin, INPUT_PULLUP);
   lcd.print("Name:");
   lcd.setCursor(8,0);
@@ -113,22 +137,33 @@ void loop() {
   {
     inactivity = 0;
     posinlist=-1;
-    sendToSleep();
+    //sendToSleep();
     lcd.setCursor(0,1);
     lcd.print("Bitte auswaehlen");
   }
   
-  //Pins lesen
+{  //Pins lesen
   nschalterstat = digitalRead(nschalter);
   switchState  = digitalRead(switchPin);
   resetS = digitalRead(resetP);
+  switchStateBack = digitalRead(switchBackPin);
+  nschalterstatBack = digitalRead(nschalterBackPin);
+  maintenanceState = digitalRead(maintenancePin);
+}
   
-  if(!prevnschalterstat && nschalterstat)//posinlist durchwählen
+  {//Hoch/runter schalten
+    if(!prevnschalterstat && nschalterstat)//posinlist durchwählen positiv
   {
     inactivity = 0;
     posinlist++;
   }
   
+  if(!prevnschalterstatBack && nschalterstatBack)//posinlist durchwählen negativ
+  {
+    inactivity = 0;
+    posinlist--;
+  }}
+
   if(posinlist == -1)//Start
   {
     lcd.setCursor(0,1);
@@ -140,7 +175,7 @@ void loop() {
   if(posinlist!=posinlistprev)//Neuen posinlist anzeigen
     schreiben(posinlist);
 
-    
+  {//Striche hoch/runterzählen/zurücksetzen
   if(!prevSwitchState && switchState) //Zugehörige Striche hochzählen
   {
     inactivity = 0;
@@ -152,6 +187,19 @@ void loop() {
     EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
     schreiben(posinlist);
   }
+
+  if(!prevswitchStateBack && switchStateBack) //Zugehörige Striche hochzählen
+  {
+    inactivity = 0;
+    
+    //EEPROM lesen
+    striche[posinlist] = EEPROM.read(posinlist*disteeprom);
+    striche[posinlist]--;
+    //EEPROM schreiben
+    EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
+    schreiben(posinlist);
+  }
+
 
   if(!resetSprev && resetS && posinlist>0)//Striche zurücksetzen
   {
@@ -173,13 +221,19 @@ void loop() {
     schreiben(posinlist);
     EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
   }
+}
   
+if(prevmaintenanceState != maintenanceState)
+  maintenance();
+
   //Vorgängerzustände setzen
   prevnschalterstat = nschalterstat;
   posinlistprev = posinlist;
   prevSwitchState = switchState;
   resetSprev = resetS;
-
+  prevswitchStateBack = switchStateBack;
+  prevnschalterstatBack = nschalterstatBack;
+  prevmaintenanceState = maintenanceState;
   inactivity++;
 }
 
@@ -209,15 +263,14 @@ void writeEEPROM()
     for(int i=0; i<ARRAYSIZE; i++)
     {
       int ieeprom = i*disteeprom;
-      EEPROM.write(ieeprom, striche[i]);//Striche schreiben
+      EEPROM.update(ieeprom, striche[i]);//Striche schreiben
       for(int j=0; j<12; j++)
       {
-        EEPROM.write(((ieeprom+1)+j),stnamen[i][j]);
+        EEPROM.update(((ieeprom+1)+j),stnamen[i][j]);
         Serial.println(stnamen[i][j]);
       }
     }
 }
-
 
 void sort() //Sortiert und schreibt auf EEPROM
 {
@@ -267,4 +320,15 @@ void wakeUpAgain()
   sleep_disable();
   //clear the interrupt
   detachInterrupt(interruptPin);
+}
+
+void maintenance()
+{
+  //Display löschen
+  lcd.clear();
+  lcd.print("Wartungsmodus");
+  lcd.setCursor(0,1);
+  lcd.print("siehe Serial");
+
+
 }
