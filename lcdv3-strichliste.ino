@@ -196,10 +196,13 @@ void loop() {
     
     //EEPROM lesen
     striche[posinlist] = EEPROM.read(posinlist*disteeprom);
-    striche[posinlist]--;
-    //EEPROM schreiben
-    EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
-    schreiben(posinlist);
+    if (striche[posinlist]>0)//Keine negativen Zahlen zulassen
+    {
+      striche[posinlist]--;
+      //EEPROM schreiben
+      EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
+      schreiben(posinlist);
+    }
   }
 
 
