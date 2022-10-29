@@ -19,7 +19,6 @@ LiquidCrystal lcd(12, 11, 7, 8, 9, 10);
  *    - vmtl eher: Eingabe per Serial
  *      - Eingabe nur vom Namen
  *      - Möglichkeit Personen aus Liste zu löschen
- *  - 
  */
 
 
