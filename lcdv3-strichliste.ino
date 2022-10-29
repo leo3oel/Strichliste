@@ -133,15 +133,16 @@ void setup() //Setup
 
 void loop() {
   //sleep inactivity abfrage nach gefühl
-  if(inactivity>500000)
+  if(millis()%20000<=10)//Nach 10s
   {
     inactivity = 0;
     posinlist=-1;
-    sort();
+    //sort();
     //sendToSleep();
     lcd.setCursor(0,1);
     lcd.print("Bitte auswaehlen");
   }
+
 {  //Pins lesen
   nschalterstat = digitalRead(nschalter);
   switchState  = digitalRead(switchPin);
@@ -221,9 +222,9 @@ void loop() {
     delay(2000);//2sec delay
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("zum löschen");
+    lcd.print("zum loeschen");
     lcd.setCursor(0,1);
-    lcd.print("weiter drücken");
+    lcd.print("gedrueckt halten");
     delay(3000);//3 sec delay, danach erneute abfrage ob noch gedrückt
     if(digitalRead(resetP))
     {
@@ -246,6 +247,7 @@ if(prevmaintenanceState != maintenanceState)
   prevnschalterstatBack = nschalterstatBack;
   prevmaintenanceState = maintenanceState;
   inactivity++;
+  delay(20);
 }
 
 //-------------------------------------------------------------
@@ -294,7 +296,8 @@ void sort() //Sortiert und schreibt auf EEPROM
   for(int i=0; i<ARRAYSIZE; i++)
   {
     for(int j=0;j<ARRAYSIZE; j++)
-      if(striche[j]<striche[j+1])
+    {
+      if((int)stnamen[j][0]>(int)stnamen[j+1][0])
       {
         for(int c=0; c<12;c++)
         {
@@ -309,6 +312,23 @@ void sort() //Sortiert und schreibt auf EEPROM
         striche[j] = striche[j+1];
         striche[j+1] = tempstriche;
       }
+      else if ((int)stnamen[j][0]>(int)stnamen[j+1][0] && (int)stnamen[j][1]>(int)stnamen[j+1][1])
+      {
+        for(int c=0; c<12;c++)
+        {
+          //Namen tauschen
+          tempnamen[c] = stnamen[j][c];
+          stnamen[j][c] = stnamen[j+1][c];
+          stnamen[j+1][c] = tempnamen[c];
+        }
+
+        //Striche tauschen
+        tempstriche = striche[j];
+        striche[j] = striche[j+1];
+        striche[j+1] = tempstriche;
+      }
+    }
+      
   }
   writeEEPROM();
 }
@@ -363,7 +383,7 @@ void maintenance()
     for(int i=0; i < usedpers; i++)
     {
       Serial.print(i+1);
-      Serial.print(": Namen:");
+      Serial.print(": Namen: ");
       Serial.println(stnamen[i]);
     }
     Serial.println("Nummer zum Löschen eingeben, zum Abbrechen Zahl größer oder kleiner eingeben");
