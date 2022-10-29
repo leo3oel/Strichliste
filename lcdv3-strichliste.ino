@@ -36,32 +36,32 @@ short int disteeprom=16;//abstand einzelner Personen im EEPROM
 //const int wakeUpPin = 6;
 
 //Striche hochzählen
-int switchState = 0;
-int prevSwitchState = 0;
+bool switchState = 0;
+bool prevSwitchState = 0;
 
 //Namen hochzählen
-int nschalterstat = 0;
-int prevnschalterstat = 0;
+bool nschalterstat = 0;
+bool prevnschalterstat = 0;
 
 //Listenposition
 int posinlist = -1; //Zählt personen durch; -1 ist der bitte auswählen bildschirm
 int posinlistprev=0;
 
 //Striche zurücksetzen
-int resetS=0;
-int resetSprev=0;
+bool resetS=0;
+bool resetSprev=0;
 
 //Striche runterzählen
-int switchStateBack = 0;
-int prevswitchStateBack = 0;
+bool switchStateBack = 0;
+bool prevswitchStateBack = 0;
 
 //Namen runterzählen
-int nschalterstatBack = 0;
-int prevnschalterstatBack =0;
+bool nschalterstatBack = 0;
+bool prevnschalterstatBack =0;
 
 //Wartungsmodus
-int maintenanceState = 0;
-int prevmaintenanceState = 0;
+bool maintenanceState = 0;
+bool prevmaintenanceState = 0;
 
 //Arrays für Striche/Namen
 int striche[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
