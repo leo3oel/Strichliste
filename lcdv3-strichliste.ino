@@ -206,7 +206,7 @@ void loop() {
   }
 
 
-  if(!resetSprev && resetS && posinlist>0)//Striche zurücksetzen
+  if(!resetSprev && resetS && posinlist>=0)//Striche zurücksetzen
   {
     inactivity = 0;
     
@@ -218,7 +218,13 @@ void loop() {
     lcd.print(striche[posinlist]);
     lcd.setCursor(4,1);
     lcd.print("EUR bezahlt?");
-    delay(5000);//5 sec delay, danach erneute abfrage ob noch gedrückt
+    delay(2000);//2sec delay
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("zum löschen");
+    lcd.setCursor(0,1);
+    lcd.print("weiter drücken");
+    delay(3000);//3 sec delay, danach erneute abfrage ob noch gedrückt
     if(digitalRead(resetP))
     {
       striche[posinlist]=0;
