@@ -299,7 +299,7 @@ void sort() //Sortiert und schreibt auf EEPROM
   {
     for(int j=0;j<usedpers-1; j++)
     {
-      if(stnamen[j][0]>stnamen[j+1][0])
+      if ((stnamen[j][0]==stnamen[j+1][0] && stnamen[j][1]>stnamen[j+1][1])||(stnamen[j][0]>stnamen[j+1][0]))
       {
         for(int c=0; c<12;c++)
         {
@@ -314,7 +314,6 @@ void sort() //Sortiert und schreibt auf EEPROM
         striche[j+1] = tempstriche;
       }
     }
-      
   }
   writeEEPROM();
 }
