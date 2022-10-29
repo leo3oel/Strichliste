@@ -65,7 +65,7 @@ int prevmaintenanceState = 0;
 
 //Arrays für Striche/Namen
 int striche[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
-char stnamen[ARRAYSIZE][12];// = {"Leonhard S", "Sophie M", "Rainer S", "Georg S", "Simon S"};//Array mit allen Namen, länge auf 12 begrenzt
+char stnamen[ARRAYSIZE][12]; //= {"Leonhard S", "Sophie M", "Rainer S", "Georg S", "Simon S"};//Array mit allen Namen, länge auf 12 begrenzt
 int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezählt
 
 
@@ -92,7 +92,7 @@ void setup() //Setup
   //!!!!!!!!!!!!!
   //Nur um neue Mitglieder anzulegen
   //Später bessere Lösung finden:
-  //Serial.begin(9600);
+  // Serial.begin(9600);
   //EEPROM schreiben
   //writeEEPROM();
  
@@ -113,7 +113,7 @@ void setup() //Setup
     if(stnamen[i][0]!=0)
       usedpers++;
 
-  //Serial.print(usedpers);
+  // Serial.print(usedpers);
   lcd.begin(16,2);
   pinMode(switchPin,INPUT);
   pinMode(nschalter,INPUT);
@@ -133,7 +133,7 @@ void setup() //Setup
 
 void loop() {
   //sleep inactivity abfrage nach gefühl
-  if(millis()%20000<=10)//Nach 10s
+  if(inactivity>1000)//Nach 10s
   {
     inactivity = 0;
     posinlist=-1;
@@ -143,17 +143,17 @@ void loop() {
     lcd.print("Bitte auswaehlen");
   }
 
-{  //Pins lesen
+  {  //Pins lesen
   nschalterstat = digitalRead(nschalter);
   switchState  = digitalRead(switchPin);
   resetS = digitalRead(resetP);
   switchStateBack = digitalRead(switchBackPin);
   nschalterstatBack = digitalRead(nschalterBackPin);
   maintenanceState = digitalRead(maintenancePin);
-}
+  }
   
   {//Hoch/runter schalten
-    if(!prevnschalterstat && nschalterstat)//posinlist durchwählen positiv
+  if(!prevnschalterstat && nschalterstat)//posinlist durchwählen positiv
   {
     inactivity = 0;
     posinlist++;
@@ -221,7 +221,7 @@ void loop() {
     lcd.print("EUR bezahlt?");
     delay(2000);//2sec delay
     lcd.clear();
-    lcd.setCursor(0,0);
+    lcd.setCursor(2,0);
     lcd.print("zum loeschen");
     lcd.setCursor(0,1);
     lcd.print("gedrueckt halten");
@@ -233,11 +233,12 @@ void loop() {
     schreiben(posinlist);
     EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
   }
-}
+  }
   
-if(prevmaintenanceState != maintenanceState)
-  maintenance();
-
+  if(prevmaintenanceState ==0 && maintenanceState==1)
+  {
+    maintenance();
+  }
   //Vorgängerzustände setzen
   prevnschalterstat = nschalterstat;
   posinlistprev = posinlist;
@@ -291,13 +292,14 @@ void sort() //Sortiert und schreibt auf EEPROM
    * Sortiert Striche und Namen parallel im double Sort.
    * Die sortierten Arrays werden auf den EEPROM geschriben
    */
+
   char tempnamen[12];
   int tempstriche=0;
-  for(int i=0; i<ARRAYSIZE; i++)
+  for(int i=0; i<usedpers; i++)
   {
-    for(int j=0;j<ARRAYSIZE; j++)
+    for(int j=0;j<usedpers-1; j++)
     {
-      if((int)stnamen[j][0]>(int)stnamen[j+1][0])
+      if(stnamen[j][0]>stnamen[j+1][0])
       {
         for(int c=0; c<12;c++)
         {
@@ -306,22 +308,6 @@ void sort() //Sortiert und schreibt auf EEPROM
           stnamen[j][c] = stnamen[j+1][c];
           stnamen[j+1][c] = tempnamen[c];
         }
-
-        //Striche tauschen
-        tempstriche = striche[j];
-        striche[j] = striche[j+1];
-        striche[j+1] = tempstriche;
-      }
-      else if ((int)stnamen[j][0]>(int)stnamen[j+1][0] && (int)stnamen[j][1]>(int)stnamen[j+1][1])
-      {
-        for(int c=0; c<12;c++)
-        {
-          //Namen tauschen
-          tempnamen[c] = stnamen[j][c];
-          stnamen[j][c] = stnamen[j+1][c];
-          stnamen[j+1][c] = tempnamen[c];
-        }
-
         //Striche tauschen
         tempstriche = striche[j];
         striche[j] = striche[j+1];
