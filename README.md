@@ -1,5 +1,6 @@
 # Strichliste
 Digitale Variante einer Strichliste mit einem Arduino Uno.
+Main-Programm: Strichliste.ino
 
 ## Funktionen
  - Sortieren nach Namen
