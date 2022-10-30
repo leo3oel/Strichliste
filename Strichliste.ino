@@ -33,7 +33,6 @@ const unsigned short int lcdled = 14;
 
 unsigned long int inactivity=0; //sleeptimer
 short int disteeprom=16;//abstand einzelner Personen im EEPROM
-//const int wakeUpPin = 6;
 
 //Striche hochzählen
 bool switchState = 0;
@@ -44,8 +43,8 @@ bool nschalterstat = 0;
 bool prevnschalterstat = 0;
 
 //Listenposition
-unsigned short int posinlist = -1; //Zählt personen durch; -1 ist der bitte auswählen bildschirm
-unsigned short int posinlistprev=0;
+short int posinlist = -1; //Zählt personen durch; -1 ist der bitte auswählen bildschirm
+short int posinlistprev=0;
 
 //Striche zurücksetzen
 bool resetS=0;
@@ -66,24 +65,17 @@ bool prevmaintenanceState = 0;
 //Arrays für Striche/Namen
 unsigned short int striche[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
 char stnamen[ARRAYSIZE][12]; //= {"Leonhard S", "Sophie M", "Rainer S", "Georg S", "Simon S"};//Array mit allen Namen, länge auf 12 begrenzt
-unsigned short int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezählt
+short int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezählt
 
-
-void schreiben (int);//Schreibt Namen/Striche auf LCD
-
-void sort();//Sortieren der Arrays
-void writeEEPROM();//Schreiben der kompletten Arrays
-void sendToSleep();//Sleep Funktion
-void wakeUpAgain();//Wakeup from Sleep
 
 void setup() //Setup
 {
+	Serial.begin(9600);
   //EEPROM lesen
   readEEPROM();
 
   //countarraylength
   countarraylength();
-
   // Serial.print(usedpers);
   lcd.begin(16,2);
   pinMode(switchPin,INPUT);
@@ -93,7 +85,7 @@ void setup() //Setup
   pinMode(nschalterBackPin, INPUT);
   pinMode(maintenancePin, INPUT);
 	pinMode(lcdled, OUTPUT);
-  pinMode(interruptPin, INPUT_PULLUP); //Pin zum Aufwecken
+  pinMode(interruptPin, INPUT); //Pin zum Aufwecken
 	digitalWrite(lcdled, HIGH);
   lcd.print("Name:");
   lcd.setCursor(8,0);
@@ -106,7 +98,7 @@ void setup() //Setup
 
 void loop() {
     //sleep inactivity abfrage nach gefühl
-    if(inactivity>1000)//Nach ca. 10s
+    if(inactivity>2000)//Nach ca. 20s
     {
       inactivity = 0;
       posinlist=-1;
@@ -122,8 +114,7 @@ void loop() {
     switchStateBack = digitalRead(switchBackPin);
     nschalterstatBack = digitalRead(nschalterBackPin);
     maintenanceState = digitalRead(maintenancePin);
-  
-    {//Hoch/runter schalten
+    //Hoch/runter schalten
     if(!prevnschalterstat && nschalterstat)//posinlist durchwählen positiv
     {
       inactivity = 0;
@@ -134,8 +125,7 @@ void loop() {
     {
       inactivity = 0;
       posinlist--;
-    }}
-
+    }
     if(posinlist == -1)//Start
     {
       lcd.setCursor(0,1);
@@ -195,7 +185,7 @@ void loop() {
       lcd.print("zum loeschen");
       lcd.setCursor(0,1);
       lcd.print("gedrueckt halten");
-      delay(3000);//3 sec delay, danach erneute abfrage ob noch gedrückt
+      delay(2000);//3 sec delay, danach erneute abfrage ob noch gedrückt
       if(digitalRead(resetP))
       {
         striche[posinlist]=0;
