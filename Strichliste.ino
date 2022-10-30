@@ -23,12 +23,13 @@ LiquidCrystal lcd(12, 11, 7, 8, 9, 10);
 
 
 //Variablen und Konstanten
-const int switchPin = 3; // Striche hochzählen
-const int nschalter = 2; //Namen hochzählen
-const int resetP = 6; //Striche zurücksetzen
-const int switchBackPin = 4;//Striche runterzählen
-const int nschalterBackPin = 13;//Namen zurückschalten
-const int maintenancePin = 5; //Wartungsmodus
+const unsigned short int switchPin = 3; // Striche hochzählen
+const unsigned short int nschalter = 15; //Namen hochzählen
+const unsigned short int resetP = 6; //Striche zurücksetzen
+const unsigned short int switchBackPin = 4;//Striche runterzählen
+const unsigned short int nschalterBackPin = 13;//Namen zurückschalten
+const unsigned short int maintenancePin = 5; //Wartungsmodus
+const unsigned short int lcdled = 14;
 
 unsigned long int inactivity=0; //sleeptimer
 short int disteeprom=16;//abstand einzelner Personen im EEPROM
@@ -43,8 +44,8 @@ bool nschalterstat = 0;
 bool prevnschalterstat = 0;
 
 //Listenposition
-int posinlist = -1; //Zählt personen durch; -1 ist der bitte auswählen bildschirm
-int posinlistprev=0;
+unsigned short int posinlist = -1; //Zählt personen durch; -1 ist der bitte auswählen bildschirm
+unsigned short int posinlistprev=0;
 
 //Striche zurücksetzen
 bool resetS=0;
@@ -63,9 +64,9 @@ bool maintenanceState = 0;
 bool prevmaintenanceState = 0;
 
 //Arrays für Striche/Namen
-int striche[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
+unsigned short int striche[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
 char stnamen[ARRAYSIZE][12]; //= {"Leonhard S", "Sophie M", "Rainer S", "Georg S", "Simon S"};//Array mit allen Namen, länge auf 12 begrenzt
-int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezählt
+unsigned short int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezählt
 
 
 void schreiben (int);//Schreibt Namen/Striche auf LCD
@@ -91,7 +92,9 @@ void setup() //Setup
   pinMode(switchBackPin, INPUT);
   pinMode(nschalterBackPin, INPUT);
   pinMode(maintenancePin, INPUT);
-  pinMode(interruptPin, INPUT_PULLUP);
+	pinMode(lcdled, OUTPUT);
+  pinMode(interruptPin, INPUT_PULLUP); //Pin zum Aufwecken
+	digitalWrite(lcdled, HIGH);
   lcd.print("Name:");
   lcd.setCursor(8,0);
   lcd.print("Striche:");
@@ -107,7 +110,7 @@ void loop() {
     {
       inactivity = 0;
       posinlist=-1;
-      //sendToSleep();
+      sendToSleep();
       lcd.setCursor(0,1);
       lcd.print("Bitte auswaehlen");
     }
@@ -200,7 +203,7 @@ void loop() {
       schreiben(posinlist);
       EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
     }
-    }
+    
     
     if(prevmaintenanceState ==0 && maintenanceState==1)
     {
