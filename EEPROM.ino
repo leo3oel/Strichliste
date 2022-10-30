@@ -53,3 +53,24 @@ void sort() //Sortiert und schreibt auf EEPROM
   }
   writeEEPROM();
 }
+
+void countarraylength()
+{
+  usedpers=0;
+  for(int i=0; i<ARRAYSIZE; i++)
+    if(stnamen[i][0]!=0)
+      usedpers++;
+}
+
+void readEEPROM()
+{
+  for(int i = 0; i<ARRAYSIZE; i++)
+  {
+    int ieeprom = i*disteeprom;
+    striche[i] = EEPROM.read(ieeprom); //Striche aus EEPROM lesen
+    for(int j = 0; j<12; j++)
+    {
+      stnamen[i][j] = EEPROM.read(ieeprom+j+4); //Einzelne Character aus EEPROM in die Strings einlesen
+    }
+  }
+}

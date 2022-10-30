@@ -85,22 +85,11 @@ void setup() //Setup
   //EEPROM schreiben
   //writeEEPROM();
  
-  //EEPROM lesen 
-  for(int i = 0; i<ARRAYSIZE; i++)
-  {
-    int ieeprom = i*disteeprom;
-    striche[i] = EEPROM.read(ieeprom); //Striche aus EEPROM lesen
-    for(int j = 0; j<12; j++)
-    {
-      stnamen[i][j] = EEPROM.read(ieeprom+j+4); //Einzelne Character aus EEPROM in die Strings einlesen
-    }
-  }
+  //EEPROM lesen
+  readEEPROM();
 
   //countarraylength
-  usedpers=0;
-  for(int i=0; i<ARRAYSIZE; i++)
-    if(stnamen[i][0]!=0)
-      usedpers++;
+  countarraylength();
 
   // Serial.print(usedpers);
   lcd.begin(16,2);
@@ -121,124 +110,118 @@ void setup() //Setup
 
 
 void loop() {
-  //sleep inactivity abfrage nach gefühl
-  if(inactivity>1000)//Nach 10s
-  {
-    inactivity = 0;
-    posinlist=-1;
-    //sort();
-    //sendToSleep();
-    lcd.setCursor(0,1);
-    lcd.print("Bitte auswaehlen");
-  }
-
-  {  //Pins lesen
-  nschalterstat = digitalRead(nschalter);
-  switchState  = digitalRead(switchPin);
-  resetS = digitalRead(resetP);
-  switchStateBack = digitalRead(switchBackPin);
-  nschalterstatBack = digitalRead(nschalterBackPin);
-  maintenanceState = digitalRead(maintenancePin);
-  }
-  
-  {//Hoch/runter schalten
-  if(!prevnschalterstat && nschalterstat)//posinlist durchwählen positiv
-  {
-    inactivity = 0;
-    posinlist++;
-  }
-  
-  if(!prevnschalterstatBack && nschalterstatBack)//posinlist durchwählen negativ
-  {
-    inactivity = 0;
-    posinlist--;
-  }}
-
-  if(posinlist == -1)//Start
-  {
-    lcd.setCursor(0,1);
-    lcd.print("Bitte auswaehlen");
-  }
-
-  if(posinlist>=usedpers)//Ende erreicht
-    posinlist=-1;
-  if(posinlist<-1)
-    posinlist=usedpers-1;
-  if(posinlist!=posinlistprev)//Neuen posinlist anzeigen
-    schreiben(posinlist);
-
-  {//Striche hoch/runterzählen/zurücksetzen
-  if(!prevSwitchState && switchState) //Zugehörige Striche hochzählen
-  {
-    inactivity = 0;
-    
-    //EEPROM lesen
-    striche[posinlist] = EEPROM.read(posinlist*disteeprom);
-    striche[posinlist]++;
-    //EEPROM schreiben
-    EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
-    schreiben(posinlist);
-  }
-
-  if(!prevswitchStateBack && switchStateBack) //Zugehörige Striche hochzählen
-  {
-    inactivity = 0;
-    
-    //EEPROM lesen
-    striche[posinlist] = EEPROM.read(posinlist*disteeprom);
-    if (striche[posinlist]>0)//Keine negativen Zahlen zulassen
+    //sleep inactivity abfrage nach gefühl
+    if(inactivity>1000)//Nach ca. 10s
     {
-      striche[posinlist]--;
+      inactivity = 0;
+      posinlist=-1;
+      //sendToSleep();
+      lcd.setCursor(0,1);
+      lcd.print("Bitte auswaehlen");
+    }
+
+    //Pins lesen
+    nschalterstat = digitalRead(nschalter);
+    switchState  = digitalRead(switchPin);
+    resetS = digitalRead(resetP);
+    switchStateBack = digitalRead(switchBackPin);
+    nschalterstatBack = digitalRead(nschalterBackPin);
+    maintenanceState = digitalRead(maintenancePin);
+  
+    {//Hoch/runter schalten
+    if(!prevnschalterstat && nschalterstat)//posinlist durchwählen positiv
+    {
+      inactivity = 0;
+      posinlist++;
+    }
+    
+    if(!prevnschalterstatBack && nschalterstatBack)//posinlist durchwählen negativ
+    {
+      inactivity = 0;
+      posinlist--;
+    }}
+
+    if(posinlist == -1)//Start
+    {
+      lcd.setCursor(0,1);
+      lcd.print("Bitte auswaehlen");
+    }
+
+    if(posinlist>=usedpers)//Ende erreicht
+      posinlist=-1;
+    if(posinlist<-1)
+      posinlist=usedpers-1;
+    if(posinlist!=posinlistprev)//Neuen posinlist anzeigen
+      schreiben(posinlist);
+
+  //Striche hoch/runterzählen/zurücksetzen
+    if(!prevSwitchState && switchState) //Zugehörige Striche hochzählen
+    {
+      inactivity = 0;
+      
+      //EEPROM lesen
+      striche[posinlist] = EEPROM.read(posinlist*disteeprom);
+      striche[posinlist]++;
       //EEPROM schreiben
       EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
       schreiben(posinlist);
     }
-  }
 
-
-  if(!resetSprev && resetS && posinlist>=0)//Striche zurücksetzen
-  {
-    inactivity = 0;
-    
-    resetSprev = resetS;
-    lcd.clear();
-    lcd.setCursor(4,0);
-    lcd.print("ACHTUNG!");
-    lcd.setCursor(0,1);
-    lcd.print(striche[posinlist]);
-    lcd.setCursor(4,1);
-    lcd.print("EUR bezahlt?");
-    delay(2000);//2sec delay
-    lcd.clear();
-    lcd.setCursor(2,0);
-    lcd.print("zum loeschen");
-    lcd.setCursor(0,1);
-    lcd.print("gedrueckt halten");
-    delay(3000);//3 sec delay, danach erneute abfrage ob noch gedrückt
-    if(digitalRead(resetP))
+    if(!prevswitchStateBack && switchStateBack) //Zugehörige Striche hochzählen
     {
-      striche[posinlist]=0;
+      inactivity = 0;
+      
+      //EEPROM lesen
+      striche[posinlist] = EEPROM.read(posinlist*disteeprom);
+      if (striche[posinlist]>0)//Keine negativen Zahlen zulassen
+      {
+        striche[posinlist]--;
+        //EEPROM schreiben
+        EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
+        schreiben(posinlist);
+      }
     }
-    schreiben(posinlist);
-    EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
-  }
-  }
-  
-  if(prevmaintenanceState ==0 && maintenanceState==1)
-  {
-    maintenance();
-  }
-  //Vorgängerzustände setzen
-  prevnschalterstat = nschalterstat;
-  posinlistprev = posinlist;
-  prevSwitchState = switchState;
-  resetSprev = resetS;
-  prevswitchStateBack = switchStateBack;
-  prevnschalterstatBack = nschalterstatBack;
-  prevmaintenanceState = maintenanceState;
-  inactivity++;
-  delay(20);
+
+    if(!resetSprev && resetS && posinlist>=0)//Striche zurücksetzen
+    {
+      inactivity = 0;
+      
+      resetSprev = resetS;
+      lcd.clear();
+      lcd.setCursor(4,0);
+      lcd.print("ACHTUNG!");
+      lcd.setCursor(0,1);
+      lcd.print(striche[posinlist]);
+      lcd.setCursor(4,1);
+      lcd.print("EUR bezahlt?");
+      delay(2000);//2sec delay
+      lcd.clear();
+      lcd.setCursor(2,0);
+      lcd.print("zum loeschen");
+      lcd.setCursor(0,1);
+      lcd.print("gedrueckt halten");
+      delay(3000);//3 sec delay, danach erneute abfrage ob noch gedrückt
+      if(digitalRead(resetP))
+      {
+        striche[posinlist]=0;
+      }
+      schreiben(posinlist);
+      EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
+    }
+    }
+    
+    if(prevmaintenanceState ==0 && maintenanceState==1)
+    {
+      maintenance();
+    }
+    //Vorgängerzustände setzen
+    prevnschalterstat = nschalterstat;
+    posinlistprev = posinlist;
+    prevSwitchState = switchState;
+    resetSprev = resetS;
+    prevswitchStateBack = switchStateBack;
+    prevnschalterstatBack = nschalterstatBack;
+    prevmaintenanceState = maintenanceState;
+    inactivity++;
+    delay(20);
 }
-
-//-------------------------------------------------------------
-
