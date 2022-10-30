@@ -70,7 +70,7 @@ short int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezä
 
 void setup() //Setup
 {
-	Serial.begin(9600);
+	//Serial.begin(9600);
   //EEPROM lesen
   readEEPROM();
 
