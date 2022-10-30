@@ -77,14 +77,6 @@ void wakeUpAgain();//Wakeup from Sleep
 
 void setup() //Setup
 {
-
-  //!!!!!!!!!!!!!
-  //Nur um neue Mitglieder anzulegen
-  //Später bessere Lösung finden:
-  // Serial.begin(9600);
-  //EEPROM schreiben
-  //writeEEPROM();
- 
   //EEPROM lesen
   readEEPROM();
 
@@ -223,5 +215,5 @@ void loop() {
     prevnschalterstatBack = nschalterstatBack;
     prevmaintenanceState = maintenanceState;
     inactivity++;
-    delay(20);
+    delay(20);//20ms delay
 }
