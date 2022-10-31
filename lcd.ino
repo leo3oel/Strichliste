@@ -20,8 +20,8 @@ void schreiben (int a)//funktion zum schreiben des lcd displays
     lcd.setCursor(8,0);
     lcd.print("Striche:");
     lcd.setCursor(0,1);
-    lcd.print(stnamen[a]);
+    lcd.print(namesarray[a]);
     lcd.setCursor(14,1); 
-    lcd.print(striche[a]);
+    lcd.print(strichearray[a]);
   }
 }

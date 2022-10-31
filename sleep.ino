@@ -13,12 +13,12 @@ void sendToSleep()
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Full Sleep
 	lcd.noDisplay();
 	//Serial.println("going to sleep");
-	digitalWrite(lcdled, LOW);
+	digitalWrite(PinLCDled, LOW);
 	delay(1000);
   //actually activate sleep mode
   sleep_cpu();
 	//Serial.println("just woke up");
-	digitalWrite(lcdled, HIGH);
+	digitalWrite(PinLCDled, HIGH);
 	lcd.display();
 }
 

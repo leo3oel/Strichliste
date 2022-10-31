@@ -34,7 +34,7 @@ void maintenance()
     {
       Serial.print(i+1);
       Serial.print(": Namen: ");
-      Serial.println(stnamen[i]);
+      Serial.println(namesarray[i]);
     }
     Serial.println("Nummer zum Löschen eingeben, zum Abbrechen Zahl größer oder kleiner eingeben");
     while (del == 0)
@@ -49,9 +49,9 @@ void maintenance()
     {
       for (int i = del-1; i<usedpers; i++)//Array zusammenstauchen
       {
-        striche[i]=striche[i+1];//Striche jeweils eins nach vorne schreiben
+        strichearray[i]=strichearray[i+1];//Striche jeweils eins nach vorne schreiben
         for (int j = 0; j < 12; j++)
-          stnamen[i][j] = stnamen[i+1][j];//Namen jeweils eins nach vorne schreiben
+          namesarray[i][j] = namesarray[i+1][j];//Namen jeweils eins nach vorne schreiben
       }
       usedpers--;
       Serial.println("Person gelöscht");
@@ -83,9 +83,9 @@ void maintenance()
       }
       for (int i=0;i<12;i++)
         if (in[i] != '\n')    
-          stnamen[usedpers][i] = in[i];
+          namesarray[usedpers][i] = in[i];
       usedpers++;
-      striche[usedpers-1] =0;
+      strichearray[usedpers-1] =0;
       Serial.println("Person hinzugefügt");
     }
   }
@@ -96,7 +96,7 @@ void maintenance()
   }
   
   sort();
-  posinlist = -1;
+  PosInList = -1;
   lcd.clear();
   lcd.print("Name:");
   lcd.setCursor(8,0);

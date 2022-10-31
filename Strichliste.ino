@@ -1,71 +1,61 @@
 #include <LiquidCrystal.h>
-#include <avr/sleep.h>
-//#include "functions.h"
-#include<EEPROM.h>//Für dauerspeicher
-//#include <RocketScream_LowPowerAVRZero.h>
-#define ARRAYSIZE 60 //Anzahl der Personen festlegen
+#include <avr/sleep.h>//going to sleep
+#include<EEPROM.h>//for saving data
+#define ARRAYSIZE 60 //set max number of people
 #define interruptPin 2
-LiquidCrystal lcd(12, 11, 7, 8, 9, 10);
-
-/*ToDo: 
- *  - möglichkeit zum posinlist neu anlegen einführen
- *    - zB Wartungsmodus:
- *      - Output auf SD Karte
- *      - In Reihenfolge wie aktuell sortiert
- *      - Format so wählen, dass leere Arrayzellen mit ausgegeben werden
- *      - posinlist in die leeren Arrayzellen schreiben
- *      - posinlist und Striche von SD Karte einlesen
- *      - direkt auf EEPROM speichern
- *    - vmtl eher: Eingabe per Serial
- *      - Eingabe nur vom Namen
- *      - Möglichkeit Personen aus Liste zu löschen
- */
-
 
 //Variablen und Konstanten
-const unsigned short int switchPin = 3; // Striche hochzählen
-const unsigned short int switchBackPin = 4;//Striche runterzählen
-const unsigned short int resetP = 6; //Striche zurücksetzen
-const unsigned short int nschalter = 15; //Namen hochzählen
-const unsigned short int nschalterBackPin = 1;//Namen zurückschalten
-const unsigned short int maintenancePin = 5; //Wartungsmodus
-const unsigned short int lcdled = 14;
+const unsigned short int PinStrichePlus = 3; // Striche ++
+const unsigned short int PinStricheMinus = 4;//Striche --
+const unsigned short int PinStricheReset = 6; //Striche = 0
+const unsigned short int PinNameGoDown = 15; //Names down (A->Z)
+const unsigned short int PinNameGoUp = 1;//Names up (Z->A)
+const unsigned short int PinMainenance = 5; //Maintenance Mode (adding new people)
+const unsigned short int PinLCDled = 14; //Background Lightning LCD
+const unsigned short int PinLCDrs = 12; //RS Pin LCD
+const unsigned short int PinLCDen = 11; //Enable Pin LCD
+const unsigned short int PinLCDd4 = 7; //LCD Data Pin 4
+const unsigned short int PinLCDd5 = 8; //LCD Data Pin 5
+const unsigned short int PinLCDd6 = 9; //LCD Data Pin 6
+const unsigned short int PinLCDd7 = 10; //LCD Data Pin 7
+
+LiquidCrystal lcd(PinLCDrs, PinLCDen, PinLCDd4, PinLCDd5, PinLCDd6, PinLCDd7);
 
 unsigned long int inactivity=0; //sleeptimer
-short int disteeprom=16;//abstand einzelner Personen im EEPROM
+short int disteeprom=16;//distance between persons in EEPROM
 
-//Striche hochzählen
-bool switchState = 0;
-bool prevSwitchState = 0;
+//Striche ++
+bool StateStrichePlus = 0; //Current state of + Button
+bool prevStateStrichePlus = 0; //Previous state of + Button
 
-//Namen hochzählen
-bool nschalterstat = 0;
-bool prevnschalterstat = 0;
+//Striche --
+bool StateStricheMinus = 0; //Current state of - Button
+bool prevStateStricheMinus = 0; //Previous state of - Button
 
-//Listenposition
-short int posinlist = -1; //Zählt personen durch; -1 ist der bitte auswählen bildschirm
-short int posinlistprev=0;
+//Striche = 0
+bool StateStricheReset=0; //Current state of reset Button
+bool prevStateStricheReset=0; //Previous state of - Button
 
-//Striche zurücksetzen
-bool resetS=0;
-bool resetSprev=0;
+//Names down (A->Z)
+bool StateNamesDown = 0; //Current state of Names Down Button
+bool prevStateNamesDown = 0; //Previous state of Names Down Button
 
-//Striche runterzählen
-bool switchStateBack = 0;
-bool prevswitchStateBack = 0;
+//Names up (Z->A)
+bool StateNamesUp = 0; //Current state of Names Up Button
+bool prevStateNamesUp =0; //Previous state of Names Up Buton
 
-//Namen runterzählen
-bool nschalterstatBack = 0;
-bool prevnschalterstatBack =0;
+//Maintenance Mode
+bool StateMaintenance = 0;
+bool prevStateMaintenance = 0;
 
-//Wartungsmodus
-bool maintenanceState = 0;
-bool prevmaintenanceState = 0;
+//Current Position in List
+short int PosInList = -1; //Current position in List, -1 => display "make a selection"
+short int prevPosInList = 0; //Previous position in List
 
-//Arrays für Striche/Namen
-unsigned short int striche[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
-char stnamen[ARRAYSIZE][12]; //= {"Leonhard S", "Sophie M", "Rainer S", "Georg S", "Simon S"};//Array mit allen Namen, länge auf 12 begrenzt
-short int usedpers=0; //Anzahl der belegten Plätze im Array, wird später gezählt
+//Arrays for Striche/Names
+unsigned short int strichearray[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
+char namesarray[ARRAYSIZE][12]; //Array mit all Names, max 12 Characters per Name
+short int usedpers=0; //Currently used Places in Array
 
 
 void setup() //Setup
@@ -78,15 +68,15 @@ void setup() //Setup
   countarraylength();
   // Serial.print(usedpers);
   lcd.begin(16,2);
-  pinMode(switchPin,INPUT);
-  pinMode(nschalter,INPUT);
-  pinMode(resetP,INPUT);
-  pinMode(switchBackPin, INPUT);
-  pinMode(nschalterBackPin, INPUT);
-  pinMode(maintenancePin, INPUT);
-	pinMode(lcdled, OUTPUT);
-  pinMode(interruptPin, INPUT); //Pin zum Aufwecken
-	digitalWrite(lcdled, HIGH);
+  pinMode(PinStrichePlus,INPUT);
+  pinMode(PinNameGoDown,INPUT);
+  pinMode(PinStricheReset,INPUT);
+  pinMode(PinStricheMinus, INPUT);
+  pinMode(PinNameGoUp, INPUT);
+  pinMode(PinMainenance, INPUT);
+	pinMode(PinLCDled, OUTPUT);
+  pinMode(interruptPin, INPUT); //Pin for wakeup
+	digitalWrite(PinLCDled, HIGH);
   lcd.print("Name:");
   lcd.setCursor(8,0);
   lcd.print("Striche:");
@@ -101,82 +91,82 @@ void loop() {
     if(inactivity>2000)//Nach ca. 20s
     {
       inactivity = 0;
-      posinlist=-1;
+      PosInList=-1;
       sendToSleep();
       lcd.setCursor(0,1);
       lcd.print("Bitte auswaehlen");
     }
 
     //Pins lesen
-    nschalterstat = digitalRead(nschalter);
-    switchState  = digitalRead(switchPin);
-    resetS = digitalRead(resetP);
-    switchStateBack = digitalRead(switchBackPin);
-    nschalterstatBack = digitalRead(nschalterBackPin);
-    maintenanceState = digitalRead(maintenancePin);
+    StateNamesDown = digitalRead(PinNameGoDown);
+    StateStrichePlus  = digitalRead(PinStrichePlus);
+    StateStricheReset = digitalRead(PinStricheReset);
+    StateStricheMinus = digitalRead(PinStricheMinus);
+    StateNamesUp = digitalRead(PinNameGoUp);
+    StateMaintenance = digitalRead(PinMainenance);
     //Hoch/runter schalten
-    if(!prevnschalterstat && nschalterstat)//posinlist durchwählen positiv
+    if(!prevStateNamesDown && StateNamesDown)//PosInList durchwählen positiv
     {
       inactivity = 0;
-      posinlist++;
+      PosInList++;
     }
     
-    if(!prevnschalterstatBack && nschalterstatBack)//posinlist durchwählen negativ
+    if(!prevStateNamesUp && StateNamesUp)//PosInList durchwählen negativ
     {
       inactivity = 0;
-      posinlist--;
+      PosInList--;
     }
-    if(posinlist == -1)//Start
+    if(PosInList == -1)//Start
     {
       lcd.setCursor(0,1);
       lcd.print("Bitte auswaehlen");
     }
 
-    if(posinlist>=usedpers)//Ende erreicht
-      posinlist=-1;
-    if(posinlist<-1)
-      posinlist=usedpers-1;
-    if(posinlist!=posinlistprev)//Neuen posinlist anzeigen
-      schreiben(posinlist);
+    if(PosInList>=usedpers)//Ende erreicht
+      PosInList=-1;
+    if(PosInList<-1)
+      PosInList=usedpers-1;
+    if(PosInList!=prevPosInList)//Neuen PosInList anzeigen
+      schreiben(PosInList);
 
   //Striche hoch/runterzählen/zurücksetzen
-    if(!prevSwitchState && switchState) //Zugehörige Striche hochzählen
+    if(!prevStateStrichePlus && StateStrichePlus) //Zugehörige Striche hochzählen
     {
       inactivity = 0;
       
       //EEPROM lesen
-      striche[posinlist] = EEPROM.read(posinlist*disteeprom);
-      striche[posinlist]++;
+      strichearray[PosInList] = EEPROM.read(PosInList*disteeprom);
+      strichearray[PosInList]++;
       //EEPROM schreiben
-      EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
-      schreiben(posinlist);
+      EEPROM.update((PosInList)*disteeprom,strichearray[PosInList]);
+      schreiben(PosInList);
     }
 
-    if(!prevswitchStateBack && switchStateBack) //Zugehörige Striche hochzählen
+    if(!prevStateStricheMinus && StateStricheMinus) //Zugehörige Striche hochzählen
     {
       inactivity = 0;
       
       //EEPROM lesen
-      striche[posinlist] = EEPROM.read(posinlist*disteeprom);
-      if (striche[posinlist]>0)//Keine negativen Zahlen zulassen
+      strichearray[PosInList] = EEPROM.read(PosInList*disteeprom);
+      if (strichearray[PosInList]>0)//Keine negativen Zahlen zulassen
       {
-        striche[posinlist]--;
+        strichearray[PosInList]--;
         //EEPROM schreiben
-        EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
-        schreiben(posinlist);
+        EEPROM.update((PosInList)*disteeprom,strichearray[PosInList]);
+        schreiben(PosInList);
       }
     }
 
-    if(!resetSprev && resetS && posinlist>=0)//Striche zurücksetzen
+    if(!prevStateStricheReset && StateStricheReset && PosInList>=0)//Striche zurücksetzen
     {
       inactivity = 0;
       
-      resetSprev = resetS;
+      prevStateStricheReset = StateStricheReset;
       lcd.clear();
       lcd.setCursor(4,0);
       lcd.print("ACHTUNG!");
       lcd.setCursor(0,1);
-      lcd.print(striche[posinlist]);
+      lcd.print(strichearray[PosInList]);
       lcd.setCursor(4,1);
       lcd.print("EUR bezahlt?");
       delay(2000);//2sec delay
@@ -186,27 +176,27 @@ void loop() {
       lcd.setCursor(0,1);
       lcd.print("gedrueckt halten");
       delay(2000);//3 sec delay, danach erneute abfrage ob noch gedrückt
-      if(digitalRead(resetP))
+      if(digitalRead(PinStricheReset))
       {
-        striche[posinlist]=0;
+        strichearray[PosInList]=0;
       }
-      schreiben(posinlist);
-      EEPROM.update((posinlist)*disteeprom,striche[posinlist]);
+      schreiben(PosInList);
+      EEPROM.update((PosInList)*disteeprom,strichearray[PosInList]);
     }
     
     
-    if(prevmaintenanceState ==0 && maintenanceState==1)
+    if(prevStateMaintenance ==0 && StateMaintenance==1)
     {
       maintenance();
     }
     //Vorgängerzustände setzen
-    prevnschalterstat = nschalterstat;
-    posinlistprev = posinlist;
-    prevSwitchState = switchState;
-    resetSprev = resetS;
-    prevswitchStateBack = switchStateBack;
-    prevnschalterstatBack = nschalterstatBack;
-    prevmaintenanceState = maintenanceState;
+    prevStateNamesDown = StateNamesDown;
+    prevPosInList = PosInList;
+    prevStateStrichePlus = StateStrichePlus;
+    prevStateStricheReset = StateStricheReset;
+    prevStateStricheMinus = StateStricheMinus;
+    prevStateNamesUp = StateNamesUp;
+    prevStateMaintenance = StateMaintenance;
     inactivity++;
     delay(20);//20ms delay
 }
