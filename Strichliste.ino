@@ -24,10 +24,10 @@ LiquidCrystal lcd(12, 11, 7, 8, 9, 10);
 
 //Variablen und Konstanten
 const unsigned short int switchPin = 3; // Striche hochzählen
-const unsigned short int nschalter = 15; //Namen hochzählen
-const unsigned short int resetP = 6; //Striche zurücksetzen
 const unsigned short int switchBackPin = 4;//Striche runterzählen
-const unsigned short int nschalterBackPin = 13;//Namen zurückschalten
+const unsigned short int resetP = 6; //Striche zurücksetzen
+const unsigned short int nschalter = 15; //Namen hochzählen
+const unsigned short int nschalterBackPin = 1;//Namen zurückschalten
 const unsigned short int maintenancePin = 5; //Wartungsmodus
 const unsigned short int lcdled = 14;
 

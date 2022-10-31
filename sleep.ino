@@ -1,6 +1,5 @@
 /* 
   Ermöglicht das Schlafenlegen und Wecken des Controllers
-  Noch nicht funktional
   https://thekurks.net/blog/2018/1/24/guide-to-arduino-sleep-mode
 */
 	
