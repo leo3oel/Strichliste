@@ -40,11 +40,11 @@ void setup() //Setup
   //pinMode(PinMaintenance, INPUT);
   pinMode(interruptPin, INPUT); //Pin for wakeup
   LCDled.setOut(HIGH);
-  lcd.print("Name:");
+  lcd.print(F("Name:"));
   lcd.setCursor(8,0);
-  lcd.print("Striche:");
+  lcd.print(F("Striche:"));
   lcd.setCursor(0,1);
-  lcd.print("Bitte auswaehlen");
+  lcd.print(F("Bitte auswaehlen"));
   sort();
 }
 
@@ -57,7 +57,7 @@ void loop() {
     PosInList=-1;
     sendToSleep();
     lcd.setCursor(0,1);
-    lcd.print("Bitte auswaehlen");
+    lcd.print(F("Bitte auswaehlen"));
   }
 
   //Hoch/runter schalten
@@ -71,12 +71,6 @@ void loop() {
   {
     inactivity = 0;
     PosInList--;
-  }
-
-  if(PosInList == -1)//Start
-  {
-    lcd.setCursor(0,1);
-    lcd.print("Bitte auswaehlen");
   }
 
   if(PosInList>=usedpers)//Ende erreicht
@@ -122,17 +116,17 @@ void loop() {
 
     lcd.clear();
     lcd.setCursor(4,0);
-    lcd.print("ACHTUNG!");
+    lcd.print(F("ACHTUNG!"));
     lcd.setCursor(0,1);
     lcd.print(strichearray[PosInList]);
     lcd.setCursor(4,1);
-    lcd.print("EUR bezahlt?");
+    lcd.print(F("EUR bezahlt?"));
     delay(1500);//2sec delay
     lcd.clear();
     lcd.setCursor(2,0);
-    lcd.print("zum loeschen");
+    lcd.print(F("zum loeschen"));
     lcd.setCursor(0,1);
-    lcd.print("erneut druecken");
+    lcd.print(F("erneut druecken"));
     delay(1000);//3 sec delay, danach erneute abfrage ob noch gedrückt
     while(!reset && i<100) //Entweder reset oder 2 sec warten
     {
@@ -152,6 +146,7 @@ void loop() {
     maintenance();
   }
 
+  prevPosInList = PosInList;
   inactivity++;
   delay(50);//20ms delay
 }
