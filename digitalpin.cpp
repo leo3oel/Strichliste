@@ -13,7 +13,11 @@ bool DigitalPin::isHIGH()
 bool DigitalPin::isLOW()
 {
     //Returns 1 if Low else 0
-    return !isHigh();
+    bool isLow = digitalRead(pinnumber);
+    if(!isLow)
+        return 1;
+    else
+        return 0;    
 }
 
 bool DigitalPin::EDGE()

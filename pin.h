@@ -1,10 +1,12 @@
+#include "Arduino.h"
+
 class Pin
 {
     protected:
         unsigned short int pinnumber;
 
     public:
-        Pin(unsigned short int);
+        Pin (unsigned short int);
 };
 
 class DigitalPin : public Pin
@@ -19,7 +21,9 @@ class DigitalPin : public Pin
         bool EDGE();
         bool posEDGE();
         bool negEDGE();
-        DigitalPin(unsigned short int newpinnumber) : Pin(newpinnumber){};//Sets Pinnumber (calling Pin Constructor)
+        DigitalPin(unsigned short int newpinnumber, uint8_t mode) : Pin(newpinnumber){
+            pinMode(pinnumber, mode);
+        };//Sets Pinnumber (calling Pin Constructor)
 };
 
 class AnalogPin : Pin
