@@ -10,3 +10,6 @@ Main-Programm: Strichliste.ino
  
 ## Zukünftige Funktionen
  - Backup der Liste auf SD-Karte
+
+## Dependencies
+- [Pin Library](https://github.com/leo3oel/pin) zur erkennung von Flanken, etc.

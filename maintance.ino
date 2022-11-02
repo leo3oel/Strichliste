@@ -10,16 +10,16 @@ void maintenance()
   long int del = 0;
   int count = 0;
   lcd.clear();
-  lcd.print("Wartungsmodus");
+  lcd.print(F("Wartungsmodus"));
   lcd.setCursor(0,1);
-  lcd.print("Serial 9600");
+  lcd.print(F("Serial 9600"));
 
   Serial.begin(9600);
-  Serial.println("----------------------------");
-  Serial.println("!Achtung lange Wartezeiten!");
-  Serial.println("Löschen oder Hinzufügen?");
-  Serial.println("1: Löschen");
-  Serial.println("2: Hinzufügen");
+  Serial.println(F("----------------------------"));
+  Serial.println(F("!Achtung lange Wartezeiten!"));
+  Serial.println(F("Löschen oder Hinzufügen?"));
+  Serial.println(F("1: Löschen"));
+  Serial.println(F("2: Hinzufügen"));
   while(des==0)
   {
     des = Serial.parseInt(SKIP_ALL, '\n');
@@ -33,10 +33,10 @@ void maintenance()
     for(int i=0; i < usedpers; i++)
     {
       Serial.print(i+1);
-      Serial.print(": Namen: ");
+      Serial.print(F(": Namen: "));
       Serial.println(namesarray[i]);
     }
-    Serial.println("Nummer zum Löschen eingeben, zum Abbrechen Zahl größer oder kleiner eingeben");
+    Serial.println(F("Nummer zum Löschen eingeben, zum Abbrechen Zahl größer oder kleiner eingeben"));
     while (del == 0)
     {
       del = Serial.parseInt(SKIP_ALL, '\n');
@@ -54,11 +54,11 @@ void maintenance()
           namesarray[i][j] = namesarray[i+1][j];//Namen jeweils eins nach vorne schreiben
       }
       usedpers--;
-      Serial.println("Person gelöscht");
+      Serial.println(F("Person gelöscht"));
     }
     else
     {
-      Serial.println("Falsche Nummer, exit");
+      Serial.println(F("Falsche Nummer, exit"));
       exit;
     }
   }
@@ -66,12 +66,12 @@ void maintenance()
   {//Neue person hinten anlegen
     if(usedpers == ARRAYSIZE)
     {
-      Serial.println("Array voll");
+      Serial.println(F("Array voll"));
     }
     else
     {
-      Serial.println("Achtung max 12 Zeichen");;
-      Serial.println("Namen eingeben:");
+      Serial.println(F("Achtung max 12 Zeichen"));;
+      Serial.println(F("Namen eingeben:"));
       String in;
       while (in==0)
       {
@@ -86,19 +86,19 @@ void maintenance()
           namesarray[usedpers][i] = in[i];
       usedpers++;
       strichearray[usedpers-1] =0;
-      Serial.println("Person hinzugefügt");
+      Serial.println(F("Person hinzugefügt"));
     }
   }
   else
   {
-    Serial.print("Falsche Nummer, exit");
+    Serial.print(F("Falsche Nummer, exit"));
     exit;
   }
   
   sort();
   PosInList = -1;
   lcd.clear();
-  lcd.print("Name:");
+  lcd.print(F("Name:"));
   lcd.setCursor(8,0);
-  lcd.print("Striche:");
+  lcd.print(F("Striche:"));
 }
