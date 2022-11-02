@@ -1,6 +1,7 @@
 #include <LiquidCrystal.h>
 #include <avr/sleep.h>//going to sleep
 #include<EEPROM.h>//for saving data
+#include "pin.h"
 #define ARRAYSIZE 60 //set max number of people
 #define interruptPin 2
 
