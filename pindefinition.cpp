@@ -1,5 +1,3 @@
-#include "pin.h"
-
 //const unsigned short int PinStrichePlus = 3; // Striche ++
 const unsigned short int PinStricheMinus = 4;//Striche --
 const unsigned short int PinStricheReset = 6; //Striche = 0
