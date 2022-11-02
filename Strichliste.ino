@@ -2,7 +2,7 @@
 #include <avr/sleep.h>//going to sleep
 #include <EEPROM.h>//for saving data
 #include <pin.h> //Custom Pin Library https://github.com/leo3oel/pin
-#define ARRAYSIZE 50 //set max number of people
+#define ARRAYSIZE 60 //set max number of people
 #define interruptPin 2
 
 //Variablen und Konstanten
