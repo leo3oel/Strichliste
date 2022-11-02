@@ -4,10 +4,10 @@ class Pin
         unsigned short int pinnumber;
 
     public:
-        
+        Pin(unsigned short int);
 };
 
-class Digitalpin : Pin
+class DigitalPin : public Pin
 {
     private:
         bool currentstate;
@@ -19,5 +19,10 @@ class Digitalpin : Pin
         bool EDGE();
         bool posEDGE();
         bool negEDGE();
-        Digitalpin (unsigned short int);
+        DigitalPin(unsigned short int newpinnumber) : Pin(newpinnumber){};//Sets Pinnumber (calling Pin Constructor)
+};
+
+class AnalogPin : Pin
+{
+    //not needed here
 };
