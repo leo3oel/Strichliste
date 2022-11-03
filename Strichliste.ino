@@ -1,16 +1,17 @@
 #include <LiquidCrystal.h>
 #include <avr/sleep.h>//going to sleep
-#include <EEPROM.h>//for saving data
 #ifndef _PIN_H
 #define _PIN_H
+#include <EEPROM.h>
 #include <pin.h> //Custom Pin Library https://github.com/leo3oel/pin
 #endif
 #include "direction.h"
-#define ARRAYSIZE 60 //set max number of people
 #define interruptPin 2
+#define ARRAYSIZE 50
+#include "ownsd.h"
 
 //Variablen und Konstanten
-
+ //set max number of people
 const unsigned short int lcdRS = 3, lcdEN = 4, lcdD4 = 5, lcdD5 = 6, lcdD6 = 7, lcdD7 = 8; 
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 

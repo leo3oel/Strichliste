@@ -14,7 +14,9 @@ void sendToSleep()
   attachInterrupt(digitalPinToInterrupt(2), wakeUpAgain, LOW); //Interrupt 0 is connected to digital pin 2
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Full Sleep
 	lcd.noDisplay();
-	//Serial.println("going to sleep");
+  readEEPROM();//Werte aktualisieren
+  countarraylength();
+  writesd();
   LCDled.setOut(LOW);
 	delay(1000);
   //actually activate sleep mode
