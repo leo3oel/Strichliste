@@ -9,7 +9,7 @@ void sendToSleep()
   sleep_enable();
   //attach the interrupt, specify the pin, the method to call on interrupt,
   //and the interrupt conditions, in this case when the pin is pulled low.
-  attachInterrupt(digitalPinToInterrupt(2), wakeUpAgain, RISING); //Interrupt 0 is connected to digital pin 2
+  attachInterrupt(digitalPinToInterrupt(2), wakeUpAgain, LOW); //Interrupt 0 is connected to digital pin 2
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Full Sleep
 	lcd.noDisplay();
 	//Serial.println("going to sleep");
