@@ -6,9 +6,9 @@
 void maintenance()
 {
   //Display löschen
-  long int des=0;
-  long int del = 0;
-  int count = 0;
+  short int des=0;
+  short int del = 0;
+  short int count = 0;
   lcd.clear();
   lcd.print(F("Wartungsmodus"));
   lcd.setCursor(0,1);
@@ -30,7 +30,7 @@ void maintenance()
   }
   if (des == 1)
   {
-    for(int i=0; i < usedpers; i++)
+    for(short int i=0; i < usedpers; i++)
     {
       Serial.print(i+1);
       Serial.print(F(": Namen: "));
@@ -47,11 +47,15 @@ void maintenance()
     }
     if (del>=1 && del <= usedpers)
     {
-      for (int i = del-1; i<usedpers; i++)//Array zusammenstauchen
+      for (short int i = del-1; i<usedpers; i++)//Array zusammenstauchen
       {
         strichearray[i]=strichearray[i+1];//Striche jeweils eins nach vorne schreiben
-        for (int j = 0; j < 12; j++)
+        for (short int j = 0; j < 12; j++)
           namesarray[i][j] = namesarray[i+1][j];//Namen jeweils eins nach vorne schreiben
+      }
+      for (short i = 0; i < 11; i++)//Leer schreiben beim löschen
+      {
+        namesarray[usedpers-1][i] = 0;
       }
       usedpers--;
       Serial.println(F("Person gelöscht"));
@@ -81,7 +85,7 @@ void maintenance()
         if(count>10)
           break;
       }
-      for (int i=0;i<12;i++)
+      for (short int i=0;i<12;i++)
         if (in[i] != '\n')    
           namesarray[usedpers][i] = in[i];
       usedpers++;
@@ -94,11 +98,12 @@ void maintenance()
     Serial.print(F("Falsche Nummer, exit"));
     exit;
   }
-  
+  Serial.end();
   sort();
-  PosInList = -1;
   lcd.clear();
   lcd.print(F("Name:"));
   lcd.setCursor(8,0);
   lcd.print(F("Striche:"));
+  PosInList = -1;
+  schreiben(PosInList);
 }
