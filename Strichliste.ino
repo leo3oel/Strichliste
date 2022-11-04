@@ -7,7 +7,7 @@
 #endif
 #include "direction.h"
 #define interruptPin 2
-#define ARRAYSIZE 50
+#define ARRAYSIZE 55
 #include "ownsd.h"
 
 File MyFile;
@@ -59,7 +59,7 @@ void setup() //Setup
 void loop() {
     
   //sleep inactivity abfrage nach gefühl
-  if(inactivity>10000)//Nach ca. 20s
+  if(inactivity>20000)//Nach ca. 20s
   {
     inactivity = 0;
     PosInList=-1;
