@@ -10,6 +10,8 @@
 #define ARRAYSIZE 50
 #include "ownsd.h"
 
+File MyFile;
+
 //Variablen und Konstanten
  //set max number of people
 const unsigned short int lcdRS = 3, lcdEN = 4, lcdD4 = 5, lcdD5 = 6, lcdD6 = 7, lcdD7 = 8; 
@@ -21,7 +23,7 @@ DigitalPin StrichePlus(17,INPUT), StricheMinus(16, INPUT), StricheReset(15, INPU
 DigitalPin Maintenance(14, INPUT);
 DigitalPin LCDled(9, OUTPUT);
 unsigned long int inactivity=0; //sleeptimer
-short int disteeprom=16;//distance between persons in EEPROM
+const short int disteeprom=16;//distance between persons in EEPROM
 
 //Current Position in List
 short int PosInList = -1; //Current position in List, -1 => display "make a selection"
@@ -118,7 +120,7 @@ void loop() {
   {
     inactivity = 0;
     bool reset = 0;
-    int i=0;
+    short int i=0;
 
     lcd.clear();
     lcd.setCursor(4,0);
