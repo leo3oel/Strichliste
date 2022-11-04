@@ -1,26 +1,29 @@
 #include <LiquidCrystal.h>
 #include <avr/sleep.h>//going to sleep
-#include <EEPROM.h>//for saving data
 #ifndef _PIN_H
 #define _PIN_H
+#include <EEPROM.h>
 #include <pin.h> //Custom Pin Library https://github.com/leo3oel/pin
 #endif
 #include "direction.h"
-#define ARRAYSIZE 60 //set max number of people
 #define interruptPin 2
+#define ARRAYSIZE 55
+#include "ownsd.h"
+
+File MyFile;
 
 //Variablen und Konstanten
-
-const unsigned short int lcdRS = 12, lcdEN = 11, lcdD4 = 7, lcdD5 = 8, lcdD6 = 9, lcdD7 = 10; 
+ //set max number of people
+const unsigned short int lcdRS = 3, lcdEN = 4, lcdD4 = 5, lcdD5 = 6, lcdD6 = 7, lcdD7 = 8; 
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 //Pins
-Direction drehgeber(15, 16, 2);
-DigitalPin StrichePlus(3,INPUT), StricheMinus(4, INPUT), StricheReset(6, INPUT);
-DigitalPin Maintenance(5, INPUT);
-DigitalPin LCDled(14, OUTPUT);
+Direction drehgeber(0, 1, 2);
+DigitalPin StrichePlus(17,INPUT), StricheMinus(16, INPUT), StricheReset(15, INPUT);
+DigitalPin Maintenance(14, INPUT);
+DigitalPin LCDled(9, OUTPUT);
 unsigned long int inactivity=0; //sleeptimer
-short int disteeprom=16;//distance between persons in EEPROM
+const short int disteeprom=16;//distance between persons in EEPROM
 
 //Current Position in List
 short int PosInList = -1; //Current position in List, -1 => display "make a selection"
@@ -35,13 +38,11 @@ bool clk, oldclk, dt, olddt;
 
 void setup() //Setup
 {
-	Serial.begin(9600);
   //EEPROM lesen
   readEEPROM();
 
   //countarraylength
   countarraylength();
-  // Serial.print(usedpers);
   lcd.begin(16,2);
   //pinMode(PinMaintenance, INPUT);
   pinMode(interruptPin, INPUT); //Pin for wakeup
@@ -56,22 +57,9 @@ void setup() //Setup
 
 
 void loop() {
-    clk;
-    oldclk = clk;
-    clk = digitalRead(15);
-    olddt = dt;
-    dt = digitalRead(16);
-    if(oldclk == 1 && clk == 0 && dt == 1)
-    {
-      Serial.print("rechtsrum ");
-    }
-    if(olddt == 1 && dt == 0 && clk == 1)
-    {
-      Serial.print("linksrum ");
-    }
     
   //sleep inactivity abfrage nach gefühl
-  if(inactivity>10000)//Nach ca. 20s
+  if(inactivity>20000)//Nach ca. 20s
   {
     inactivity = 0;
     PosInList=-1;
@@ -132,7 +120,7 @@ void loop() {
   {
     inactivity = 0;
     bool reset = 0;
-    int i=0;
+    short int i=0;
 
     lcd.clear();
     lcd.setCursor(4,0);
@@ -168,5 +156,5 @@ void loop() {
 
   prevPosInList = PosInList;
   inactivity++;
-  delay(5);//20ms delay
+  delay(2);//20ms delay
 }

@@ -11,7 +11,7 @@ void writeEEPROM()
      * Später noch das schreiben der SD Karte hier ergänzen
      */ 
     //Serial.println("Schreiben");
-    for(int i=0; i<ARRAYSIZE; i++)
+    for(short int i=0; i<ARRAYSIZE; i++)
     {
       int ieeprom = i*disteeprom;
       EEPROM.update(ieeprom, strichearray[i]);//Striche schreiben
@@ -28,16 +28,16 @@ void sort() //Sortiert und schreibt auf EEPROM
    * Sortiert Striche und Namen parallel im double Sort.
    * Die sortierten Arrays werden auf den EEPROM geschriben
    */
-
+  countarraylength();
   char tempnamen[12];
-  int tempstriche=0;
-  for(int i=0; i<usedpers; i++)
+  short int tempstriche=0;
+  for(short int i=0; i<usedpers; i++)
   {
-    for(int j=0;j<usedpers-1; j++)
+    for(short int j=0;j<usedpers-1; j++)
     {
       if ((namesarray[j][0]==namesarray[j+1][0] && namesarray[j][1]>namesarray[j+1][1])||(namesarray[j][0]>namesarray[j+1][0]))
       {
-        for(int c=0; c<12;c++)
+        for(short int c=0; c<12;c++)
         {
           //Namen tauschen
           tempnamen[c] = namesarray[j][c];
@@ -57,18 +57,18 @@ void sort() //Sortiert und schreibt auf EEPROM
 void countarraylength()
 {
   usedpers=0;
-  for(int i=0; i<ARRAYSIZE; i++)
+  for(short int i=0; i<ARRAYSIZE; i++)
     if(namesarray[i][0]!=0)
       usedpers++;
 }
 
 void readEEPROM()
 {
-  for(int i = 0; i<ARRAYSIZE; i++)
+  for(short int i = 0; i<ARRAYSIZE; i++)
   {
-    int ieeprom = i*disteeprom;
+    short int ieeprom = i*disteeprom;
     strichearray[i] = EEPROM.read(ieeprom); //Striche aus EEPROM lesen
-    for(int j = 0; j<12; j++)
+    for(short int j = 0; j<12; j++)
     {
       namesarray[i][j] = EEPROM.read(ieeprom+j+4); //Einzelne Character aus EEPROM in die Strings einlesen
     }
