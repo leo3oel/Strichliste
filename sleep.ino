@@ -18,7 +18,7 @@ void sendToSleep()
   countarraylength();
   writesd();
   LCDled.setOut(LOW);
-	delay(1000);
+	delay(5000);
   //actually activate sleep mode
   sleep_cpu();
 	//Serial.println("just woke up");
