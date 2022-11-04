@@ -24,7 +24,7 @@ void writesd()
     }
     MyFile.println(F("];"));
 
-    MyFile.print(F("\nnamesarray[ARRAYSIZE][12] = ["));
+    MyFile.print(F("namesarray[ARRAYSIZE][12] = ["));
     MyFile.print(namesarray[0]);
     MyFile.print(F("\""));
     for(short int i = 1; i<ARRAYSIZE; i++)
@@ -37,7 +37,7 @@ void writesd()
     MyFile.println(F("];"));
     linebreak();
     linebreak();
-    MyFile.println();
+    MyFile.println(F("END"));
     MyFile.close();
 }
 

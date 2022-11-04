@@ -9,7 +9,7 @@
 #endif
 
 #ifndef ARRAYSIZE
-#define ARRAYSIZE 50
+#define ARRAYSIZE 55
 #endif
 
 #include "Arduino.h"
