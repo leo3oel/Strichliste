@@ -8,16 +8,15 @@
 #include <SD.h>
 #endif
 
-#ifndef ARRAYSIZE
-#define ARRAYSIZE 55
+#ifndef ARRAYSIZES
+#define ARRAYSIZE 60
+#define STRINGLENGTH 12
 #endif
 
 #include "Arduino.h"
 
-extern unsigned short int strichearray[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
-extern char namesarray[ARRAYSIZE][12]; //Array mit all Names, max 12 Characters per Name
 extern short int usedpers;
 extern File MyFile;
 
-void writesd();
+void writesd(char names[][STRINGLENGTH], unsigned short striche[]);
 void linebreak();
