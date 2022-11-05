@@ -1,9 +1,11 @@
+#include "sleep.h"
+
 /* 
   Ermöglicht das Schlafenlegen und Wecken des Controllers
   https://thekurks.net/blog/2018/1/24/guide-to-arduino-sleep-mode
 */
-	
-void sendToSleep()
+
+void sendToSleep(char names[][STRINGLENGTH], unsigned short striche[])
 {
   //enable sleeping - note this primes sleep, not starts it!
   sleep_enable();
@@ -14,9 +16,8 @@ void sendToSleep()
   attachInterrupt(digitalPinToInterrupt(2), wakeUpAgain, LOW); //Interrupt 0 is connected to digital pin 2
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Full Sleep
 	lcd.noDisplay();
-  readEEPROM();//Werte aktualisieren
-  countarraylength();
-  writesd();
+  //readEEPROM();//Werte aktualisieren
+  writesd(names, striche);
   LCDled.setOut(LOW);
 	delay(5000);
   //actually activate sleep mode
