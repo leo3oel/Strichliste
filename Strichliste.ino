@@ -1,48 +1,59 @@
 #include <LiquidCrystal.h>
-#include <avr/sleep.h>//going to sleep
+#include "direction.h"
+#include "sleep.h"
+
 #ifndef _PIN_H
 #define _PIN_H
-#include <EEPROM.h>
 #include <pin.h> //Custom Pin Library https://github.com/leo3oel/pin
 #endif
-#include "direction.h"
-#define interruptPin 2
-#define ARRAYSIZE 55
-#include "ownsd.h"
 
-File MyFile;
+#ifndef _OWNSD_H
+#define _OWNSD_H
+#include "ownsd.h"
+#endif 
+
+#ifndef _ARRAY_H
+#define _ARRAY_H
+#include "array.h"
+#endif
+
+#ifndef ARRAYSIZES
+#define ARRAYSIZE 60
+#define STRINGLENGTH 12
+#endif
+
+#define interruptPin 2
 
 //Variablen und Konstanten
- //set max number of people
-const unsigned short int lcdRS = 3, lcdEN = 4, lcdD4 = 5, lcdD5 = 6, lcdD6 = 7, lcdD7 = 8; 
+const unsigned short lcdRS = 3, lcdEN = 4, lcdD4 = 5, lcdD5 = 6, lcdD6 = 7, lcdD7 = 8; 
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
+
 
 //Pins
 Direction drehgeber(0, 1, 2);
 DigitalPin StrichePlus(17,INPUT), StricheMinus(16, INPUT), StricheReset(15, INPUT);
 DigitalPin Maintenance(14, INPUT);
 DigitalPin LCDled(9, OUTPUT);
-unsigned long int inactivity=0; //sleeptimer
-const short int disteeprom=16;//distance between persons in EEPROM
+unsigned long inactivity=0; //sleeptimer
+const short disteeprom=2;//distance between persons in EEPROM
 
 //Current Position in List
-short int PosInList = -1; //Current position in List, -1 => display "make a selection"
-short int prevPosInList = 0; //Previous position in List
+short PosInList = -1; //Current position in List, -1 => display "make a selection"
+short prevPosInList = 0; //Previous position in List
 
 //Arrays for Striche/Names
-unsigned short int strichearray[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
-char namesarray[ARRAYSIZE][12]; //Array mit all Names, max 12 Characters per Name
-short int usedpers=0; //Currently used Places in Array
-
-bool clk, oldclk, dt, olddt;
+unsigned short strichearray[ARRAYSIZE]; //= {6,0,12,0,1,0,0};//Striche
+char namesarray[ARRAYSIZE][STRINGLENGTH]; //Array mit all Names, max 12 Characters per Name
+unsigned short poseeTOposlcd[ARRAYSIZE]; //Enthält an Position 0 Nummer von erstem Namen
+short usedpers=0; //Currently used Places in Array
 
 void setup() //Setup
 {
   //EEPROM lesen
-  readEEPROM();
+  readEEPROM(strichearray);
 
   //countarraylength
-  countarraylength();
+  usedpers = countarraylength(namesarray);
   lcd.begin(16,2);
   //pinMode(PinMaintenance, INPUT);
   pinMode(interruptPin, INPUT); //Pin for wakeup
@@ -52,7 +63,7 @@ void setup() //Setup
   lcd.print(F("Striche:"));
   lcd.setCursor(0,1);
   lcd.print(F("Bitte auswaehlen"));
-  sort();
+  sort(namesarray, poseeTOposlcd);
 }
 
 
@@ -63,7 +74,7 @@ void loop() {
   {
     inactivity = 0;
     PosInList=-1;
-    sendToSleep();
+    sendToSleep(namesarray, strichearray);
     lcd.setCursor(0,1);
     lcd.print(F("Bitte auswaehlen"));
   }
@@ -86,7 +97,7 @@ void loop() {
   if(PosInList<-1)
     PosInList=usedpers-1;
   if(PosInList!=prevPosInList)//Neuen PosInList anzeigen
-    schreiben(PosInList);
+    schreiben(PosInList, poseeTOposlcd);
 
   //Striche hoch/runterzählen/zurücksetzen
   if(StrichePlus.posEDGE()) //Zugehörige Striche hochzählen
@@ -94,11 +105,11 @@ void loop() {
     inactivity = 0;
     
     //EEPROM lesen
-    strichearray[PosInList] = EEPROM.read(PosInList*disteeprom);
-    strichearray[PosInList]++;
+    strichearray[poseeTOposlcd[PosInList]] = EEPROM.read(poseeTOposlcd[PosInList]*disteeprom);
+    strichearray[poseeTOposlcd[PosInList]]++;
     //EEPROM schreiben
-    EEPROM.update((PosInList)*disteeprom,strichearray[PosInList]);
-    schreiben(PosInList);
+    EEPROM.update((poseeTOposlcd[PosInList])*disteeprom,strichearray[poseeTOposlcd[PosInList]]);
+    schreiben(PosInList, poseeTOposlcd);
   }
 
   if(StricheMinus.posEDGE()) //Zugehörige Striche hochzählen
@@ -106,13 +117,13 @@ void loop() {
     inactivity = 0;
     
     //EEPROM lesen
-    strichearray[PosInList] = EEPROM.read(PosInList*disteeprom);
-    if (strichearray[PosInList]>0)//Keine negativen Zahlen zulassen
+    strichearray[poseeTOposlcd[PosInList]] = EEPROM.read(poseeTOposlcd[PosInList]*disteeprom);
+    if (strichearray[poseeTOposlcd[PosInList]]>0)//Keine negativen Zahlen zulassen
     {
-      strichearray[PosInList]--;
+      strichearray[poseeTOposlcd[PosInList]]--;
       //EEPROM schreiben
-      EEPROM.update((PosInList)*disteeprom,strichearray[PosInList]);
-      schreiben(PosInList);
+      EEPROM.update((poseeTOposlcd[PosInList])*disteeprom,strichearray[poseeTOposlcd[PosInList]]);
+      schreiben(PosInList, poseeTOposlcd);
     }
   }
 
@@ -126,7 +137,7 @@ void loop() {
     lcd.setCursor(4,0);
     lcd.print(F("ACHTUNG!"));
     lcd.setCursor(0,1);
-    lcd.print(strichearray[PosInList]);
+    lcd.print(strichearray[poseeTOposlcd[PosInList]]);
     lcd.setCursor(4,1);
     lcd.print(F("EUR bezahlt?"));
     delay(1500);//2sec delay
@@ -140,19 +151,14 @@ void loop() {
     {
         reset = StricheReset.posEDGE();
         if(reset)
-          strichearray[PosInList]=0;
+          strichearray[poseeTOposlcd[PosInList]]=0;
         delay(20);
         i++;
     }
-    schreiben(PosInList);
-    EEPROM.update((PosInList)*disteeprom,strichearray[PosInList]);
+    schreiben(poseeTOposlcd[PosInList], poseeTOposlcd);
+    EEPROM.update((poseeTOposlcd[PosInList])*disteeprom,strichearray[poseeTOposlcd[PosInList]]);
   }
 
-
-  if(Maintenance.posEDGE())
-  {
-    maintenance();
-  }
 
   prevPosInList = PosInList;
   inactivity++;
