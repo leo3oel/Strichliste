@@ -11,10 +11,11 @@ void zeileloeschen (int a)//Löscht Display
   }
 }
 
-void schreiben (int a)//funktion zum schreiben des lcd displays
+void schreiben (short newa, unsigned short poseeTOposlcd[])//funktion zum schreiben des lcd displays
 {
-  if(a!=-1)
+  if(newa!=-1)
   {
+    short a = poseeTOposlcd[newa];
     lcd.clear();
     lcd.print(F("Name:"));
     lcd.setCursor(8,0);
@@ -24,7 +25,7 @@ void schreiben (int a)//funktion zum schreiben des lcd displays
     lcd.setCursor(14,1); 
     lcd.print(strichearray[a]);
   }
-  else if (a==-1)
+  else if (newa==-1)
   {
     lcd.clear();
     lcd.print(F("Name:"));
