@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include <avr/sleep.h>//going to sleep
+#include <avr/sleep.h> //going to sleep
 
 #ifndef _ARRAY_H
 #define _ARRAY_H
@@ -9,7 +9,7 @@
 #ifndef _OWNSD_H
 #define _OWNSD_H
 #include "ownsd.h"
-#endif 
+#endif
 
 #ifndef _PIN_H
 #define _PIN_H
@@ -23,7 +23,7 @@
 
 #include <LiquidCrystal.h>
 
-//externe Variablen
+// externe Variablen
 extern LiquidCrystal lcd;
 extern DigitalPin LCDled;
 

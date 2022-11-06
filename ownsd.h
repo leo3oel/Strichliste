@@ -18,5 +18,6 @@
 extern short int usedpers;
 extern File MyFile;
 
-void writesd(char names[][STRINGLENGTH], unsigned short striche[]);
-void linebreak();
+bool readSD(char names[][STRINGLENGTH]);//read names von sd
+void writesd(char names[][STRINGLENGTH], unsigned short striche[]);//write name and striche
+void linebreak(File MyFile);//print horizontal bar
