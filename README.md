@@ -4,12 +4,10 @@ Main-Programm: Strichliste.ino
 
 ## Funktionen
  - Sortieren nach Namen
- - Speichern der Namen und Striche auf dem EEPROM
- - Hinzufügen/Löschen von Personen während des Betriebs über Serial
+ - Speichern der Striche auf dem EEPROM
+ - Hinzufügen/Löschen von Personen über SD-Karte
  - Stromsparmodus
- 
-## Zukünftige Funktionen
- - Backup der Liste auf SD-Karte
+ - Backup auf SD-Karte
 
 ## Dependencies
 - [Pin Library](https://github.com/leo3oel/pin) zur erkennung von Flanken, etc.
