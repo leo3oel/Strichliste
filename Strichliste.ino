@@ -25,14 +25,13 @@
 #define interruptPin 2
 
 // Variablen und Konstanten
-const unsigned short lcdRS = 3, lcdEN = 4, lcdD4 = 5, lcdD5 = 6, lcdD6 = 7, lcdD7 = 8; // LCD Pins
+const unsigned short lcdRS = 14, lcdEN = 15, lcdD4 = 16, lcdD5 = 17, lcdD6 = 18, lcdD7 = 19; // LCD Pins
+DigitalPin LCDled(20, OUTPUT);
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 // Pins
-Direction drehgeber(0, 1, 2);
-DigitalPin StrichePlus(17, INPUT), StricheMinus(16, INPUT), StricheReset(15, INPUT);
-DigitalPin Maintenance(14, INPUT);
-DigitalPin LCDled(9, OUTPUT);
+Direction drehgeber(3, 4, 2);
+DigitalPin StrichePlus(5, INPUT), StricheMinus(6, INPUT), StricheReset(7, INPUT);
 unsigned long inactivity = 0; // sleeptimer
 const short disteeprom = 2;   // distance between persons in EEPROM
 
@@ -42,7 +41,7 @@ short prevPosInList = 0; // Previous position in List
 
 // Arrays for Striche/Names
 unsigned short strichearray[ARRAYSIZE];   //= {6,0,12,0,1,0,0};//Striche
-char namesarray[ARRAYSIZE][STRINGLENGTH] = {"Leonhard S", "Rainer S", "Sophie S", "Simon M"}; // Array mit all Names, max 12 Characters per Name
+char namesarray[ARRAYSIZE][STRINGLENGTH]; //= {"Leonhard S", "Rainer S", "Sophie S", "Simon M"}; // Array mit all Names, max 12 Characters per Name
 unsigned short poseeTOposlcd[ARRAYSIZE];  // Enthält an Position 0 Nummer von erstem Namen
 short usedpers = 0;                       // Currently used Places in Array
 
@@ -52,7 +51,7 @@ void setup() // Setup
     LCDled.setOut(HIGH);
     // EEPROM lesen
     readEEPROM(strichearray); // Striche vom EEPROM lesen
-    bool sdread = 1;          //= readSD(namesarray) also enable writesd; //read Names from SD
+    bool sdread = readSD(namesarray); //read Names from SD
     if (sdread)               // check if reading was successful
     {
         // everything ok
@@ -69,8 +68,7 @@ void setup() // Setup
         }
     }
     usedpers = countarraylength(namesarray); // Anzahl der Benutzten stellen zählen
-    sort(namesarray, poseeTOposlcd);         // poseeTOposlcd array sortieren
-    // pinMode(PinMaintenance, INPUT);
+    sort(namesarray, poseeTOposlcd);  
     pinMode(interruptPin, INPUT); // Pin for wakeup
     lcd.print(F("Name:"));
     lcd.setCursor(8, 0);

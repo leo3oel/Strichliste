@@ -7,6 +7,10 @@ Direction::Direction(unsigned short int nclk, unsigned short int ndt, unsigned s
     sw = nsw;
     pinMode(clk, INPUT);
     pinMode(dt, INPUT);
+    pinMode(sw, INPUT);
+    digitalWrite(sw, HIGH);
+    digitalWrite(dt, HIGH);
+    digitalWrite(clk, HIGH);
 }
 
 

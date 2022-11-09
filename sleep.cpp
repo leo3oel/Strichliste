@@ -17,7 +17,7 @@ void sendToSleep(char names[][STRINGLENGTH], unsigned short striche[])
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);                         // Full Sleep
     lcd.noDisplay();
     readEEPROM(striche); // Werte aktualisieren
-    //writesd(names, striche);
+    writesd(names, striche);
     LCDled.setOut(LOW);
     delay(5000);
     // actually activate sleep mode
