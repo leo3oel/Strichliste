@@ -25,12 +25,12 @@
 #define interruptPin 2
 
 // Variablen und Konstanten
-const unsigned short lcdRS = 14, lcdEN = 15, lcdD4 = 16, lcdD5 = 17, lcdD6 = 18, lcdD7 = 19; // LCD Pins
-DigitalPin LCDled(20, OUTPUT);
+const unsigned short lcdRS = 8, lcdEN = 9, lcdD4 = 19, lcdD5 = 18, lcdD6 = 17, lcdD7 = 16; // LCD Pins
+DigitalPin LCDled(15, OUTPUT);
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 // Pins
-Direction drehgeber(3, 4, 2);
+Direction drehgeber(4, 3, 2);
 DigitalPin StrichePlus(5, INPUT), StricheMinus(6, INPUT), StricheReset(7, INPUT);
 unsigned long inactivity = 0; // sleeptimer
 const short disteeprom = 2;   // distance between persons in EEPROM
